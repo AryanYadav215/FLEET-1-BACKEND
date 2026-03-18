@@ -1,9 +1,11 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-DATABASE_URL = "mysql+pymysql://root:Aryan%4012345@localhost/logistics_erp"
-
-engine = create_engine(DATABASE_URL)
+DATABASE_URL = "postgresql://postgres.wncueglfxgxzwzxkwcey:XiJt4Glwffqsi29M@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres?sslmode=require"
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True
+)
 
 SessionLocal = sessionmaker(
     autocommit=False,

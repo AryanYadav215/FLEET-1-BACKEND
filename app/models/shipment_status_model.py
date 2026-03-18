@@ -4,14 +4,15 @@ from sqlalchemy.sql import func
 from app.database import Base
 import uuid
 
-class User(Base):
-    __tablename__ = "profiles"
+class ShipmentStatusUpdate(Base):
+    __tablename__ = "shipment_status_updates"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    full_name = Column(String)
-    phone = Column(String, unique=True)
-    role = Column(String)
-    company_name = Column(String)
-    password = Column(String)
+
+    shipment_id = Column(UUID(as_uuid=True))
+    status = Column(String)
+    location = Column(String)
+
+    updated_by = Column(UUID(as_uuid=True))
 
     created_at = Column(TIMESTAMP, server_default=func.now())

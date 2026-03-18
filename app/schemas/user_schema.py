@@ -1,38 +1,27 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from typing import Optional
 
 
-# ---------------- LOGIN ----------------
-class LoginRequest(BaseModel):
-    email: EmailStr
-    password: str
-
-
-# ---------------- SIGNUP ----------------
-class SignupRequest(BaseModel):
-    name: str
-    email: EmailStr
-    password: str
-    role: str
-    company_name: Optional[str] = None
-
-
-# ---------------- UPDATE USER ----------------
-class UpdateUser(BaseModel):
-    name: str
-    email: EmailStr
-    password: str
-    role: str
-    company_name: Optional[str] = None
-
-
-# ---------------- RESPONSE SCHEMA ----------------
+# ===============================
+# RESPONSE SCHEMA (for API output)
+# ===============================
 class UserResponse(BaseModel):
-    id: int
-    name: str
-    email: EmailStr
+    id: str
+    full_name: str
+    phone: str
     role: str
     company_name: Optional[str]
 
     class Config:
         from_attributes = True
+
+
+# ===============================
+# UPDATE SCHEMA
+# ===============================
+class UpdateUser(BaseModel):
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    role: Optional[str] = None
+    company_name: Optional[str] = None
+    password: Optional[str] = None

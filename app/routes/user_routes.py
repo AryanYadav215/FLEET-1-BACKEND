@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -11,17 +13,19 @@ router = APIRouter(prefix="/users", tags=["Users"])
 # ---------------- GET ALL USERS ----------------
 @router.get("/")
 def get_all_users(db: Session = Depends(get_db)):
-
-    users = db.query(User).all()
-
-    return users
+    return db.query(User).all()
 
 
 # ---------------- GET USER BY ID ----------------
 @router.get("/{user_id}")
-def get_user(user_id: int, db: Session = Depends(get_db)):
+def get_user(user_id: str, db: Session = Depends(get_db)):
 
-    user = db.query(User).filter(User.id == user_id).first()
+    try:
+        user_uuid = uuid.UUID(user_id)
+    except:
+        raise HTTPException(status_code=400, detail="Invalid UUID")
+
+    user = db.query(User).filter(User.id == user_uuid).first()
 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -31,19 +35,33 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
 
 # ---------------- UPDATE USER ----------------
 @router.put("/{user_id}")
-def update_user(user_id: int, data: UpdateUser, db: Session = Depends(get_db)):
+def update_user(user_id: str, data: UpdateUser, db: Session = Depends(get_db)):
 
-    user = db.query(User).filter(User.id == user_id).first()
+    try:
+        user_uuid = uuid.UUID(user_id)
+    except:
+        raise HTTPException(status_code=400, detail="Invalid UUID")
+
+    user = db.query(User).filter(User.id == user_uuid).first()
 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # update fields
-    user.name = data.name
-    user.email = data.email
-    user.password = data.password
-    user.role = data.role
-    user.company_name = data.company_name
+    # update fields (only if provided)
+    if data.name is not None:
+        user.name = data.name
+
+    if data.email is not None:
+        user.email = data.email
+
+    if data.password is not None:
+        user.password = data.password
+
+    if data.role is not None:
+        user.role = data.role
+
+    if data.company_name is not None:
+        user.company_name = data.company_name
 
     db.commit()
     db.refresh(user)
@@ -53,11 +71,17 @@ def update_user(user_id: int, data: UpdateUser, db: Session = Depends(get_db)):
         "user": user
     }
 
+
 # ---------------- DELETE USER ----------------
 @router.delete("/{user_id}")
-def delete_user(user_id: int, db: Session = Depends(get_db)):
+def delete_user(user_id: str, db: Session = Depends(get_db)):
 
-    user = db.query(User).filter(User.id == user_id).first()
+    try:
+        user_uuid = uuid.UUID(user_id)
+    except:
+        raise HTTPException(status_code=400, detail="Invalid UUID")
+
+    user = db.query(User).filter(User.id == user_uuid).first()
 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")

@@ -4,3 +4,4 @@
 # Hide Python virtual environments and cache (keeps your repo clean)
 .venv/
 __pycache__/
+*.pyc
