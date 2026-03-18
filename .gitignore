@@ -1,0 +1,6 @@
+# Hide environment variables and secrets
+.env
+
+# Hide Python virtual environments and cache (keeps your repo clean)
+.venv/
+__pycache__/
