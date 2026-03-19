@@ -47,12 +47,12 @@ def update_user(user_id: str, data: UpdateUser, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # update fields (only if provided)
-    if data.name is not None:
-        user.name = data.name
+    # update fields
+    if data.full_name is not None:
+        user.full_name = data.full_name
 
-    if data.email is not None:
-        user.email = data.email
+    if data.phone is not None:
+        user.phone = data.phone
 
     if data.password is not None:
         user.password = data.password
@@ -70,7 +70,6 @@ def update_user(user_id: str, data: UpdateUser, db: Session = Depends(get_db)):
         "message": "User updated successfully",
         "user": user
     }
-
 
 # ---------------- DELETE USER ----------------
 @router.delete("/{user_id}")
