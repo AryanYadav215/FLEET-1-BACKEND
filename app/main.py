@@ -8,7 +8,7 @@ from app.models import (
     shipment_model,
     shipment_assignment_model,
     shipment_status_model,
-    handover_model   # ✅ important
+    handover_model
 )
 
 # import routers
@@ -18,7 +18,7 @@ from app.routes.transporter_routes import router as transporter_router
 from app.routes.shipment_routes import router as shipment_router
 from app.routes.shipment_assignment_routes import router as assignment_router
 from app.routes.handover_routes import router as handover_router
-
+from app.routes.status_routes import router as status_router  
 app = FastAPI()
 
 Base.metadata.create_all(bind=engine)
@@ -29,6 +29,7 @@ app.include_router(transporter_router)
 app.include_router(shipment_router)
 app.include_router(assignment_router)
 app.include_router(handover_router)
+app.include_router(status_router)   
 
 @app.get("/")
 def root():
