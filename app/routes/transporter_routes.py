@@ -1,30 +1,18 @@
-import uuid
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+from typing import List
 
 from app.database import get_db
-from app.models.transporter_model import Transporter
-from app.schemas.transporter_schema import TransporterCreate, TransporterUpdate
+from app.models.user_model import User
+from app.schemas.user_schema import UserResponse
 
-router = APIRouter(prefix="/transporters", tags=["Transporters"])
+# 👇 THIS WAS THE MISSING LINE! 👇
+router = APIRouter()
 
-@router.post("/")
-def create_transporter(data: TransporterCreate, db: Session = Depends(get_db)):
-    transporter = Transporter(
-        user_id=uuid.UUID(data.user_id),
-        company_name=data.company_name,
-        operating_city=data.operating_city,
-        service_routes=data.service_routes,
-        contact_person=data.contact_person,
-        phone=data.phone
-    )
 
-    db.add(transporter)
-    db.commit()
-    db.refresh(transporter)
-
-    return transporter
-
-@router.get("/")
+@router.get("/", response_model=List[UserResponse])
 def get_transporters(db: Session = Depends(get_db)):
-    return db.query(Transporter).all()
+    # Grabs EVERY user where role is 'transporter'
+    transporters = db.query(User).filter(User.role == "transporter").all()
+
+    return transporters

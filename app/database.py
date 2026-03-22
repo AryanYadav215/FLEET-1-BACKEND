@@ -1,6 +1,10 @@
 import os
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+
+# Load from your .env file locally, or from Render's environment variables in production
+load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
@@ -9,12 +13,7 @@ engine = create_engine(
     pool_pre_ping=True
 )
 
-SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine
-)
-
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 def get_db():
