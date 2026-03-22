@@ -18,7 +18,7 @@ router = APIRouter(prefix="/status", tags=["Shipment Status"])
 def add_status(
     shipment_id: str,
     status: str,
-    location: str,
+    city: str,  # FIX: Changed from location to city
     updated_by: str,
     db: Session = Depends(get_db)
 ):
@@ -44,7 +44,7 @@ def add_status(
     new_status = ShipmentStatusUpdate(
         shipment_id=shipment_uuid,
         status=status,
-        location=location,
+        city=city,  # FIX: Changed from location=location to city=city
         updated_by=user_uuid
     )
 
