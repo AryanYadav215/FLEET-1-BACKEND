@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.database import Base, engine
 
 # import ALL models
@@ -19,18 +20,31 @@ from app.routes.shipment_routes import router as shipment_router
 from app.routes.shipment_assignment_routes import router as assignment_router
 from app.routes.handover_routes import router as handover_router
 from app.routes.status_routes import router as status_router  
+
 app = FastAPI()
 
+# ✅ CORS (important for frontend)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # later restrict in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ✅ Create tables
 Base.metadata.create_all(bind=engine)
 
-app.include_router(auth_router)
-app.include_router(user_router)
-app.include_router(transporter_router)
-app.include_router(shipment_router)
-app.include_router(assignment_router)
-app.include_router(handover_router)
-app.include_router(status_router)   
+# ✅ Include routers with prefixes
+app.include_router(auth_router, prefix="/auth", tags=["Auth"])
+app.include_router(user_router, prefix="/users", tags=["Users"])
+app.include_router(transporter_router, prefix="/transporters", tags=["Transporters"])
+app.include_router(shipment_router, prefix="/shipments", tags=["Shipments"])
+app.include_router(assignment_router, prefix="/assignments", tags=["Assignments"])
+app.include_router(handover_router, prefix="/handover", tags=["Handover"])
+app.include_router(status_router, prefix="/status", tags=["Status"])
 
+# ✅ Root route
 @app.get("/")
 def root():
     return {"message": "Backend running 🚀"}
