@@ -9,7 +9,7 @@ from app.models.transporter_model import Transporter
 # Import both Schemas
 from app.schemas.auth_schema import SignupRequest, LoginRequest
 
-router = APIRouter(prefix="/auth", tags=["Auth"])
+router = APIRouter(tags=["Auth"])
 
 @router.post("/signup")
 def signup(data: SignupRequest, db: Session = Depends(get_db)):
