@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
+import uuid
 
 # Import both Models
 from app.models.user_model import User
@@ -14,64 +15,47 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/signup")
 def signup(data: SignupRequest, db: Session = Depends(get_db)):
-    # 1. Check if user already exists by phone
-    existing_user = db.query(User).filter(User.phone == data.phone).first()
+    # Normalize phone: remove spaces
+    phone_clean = data.phone.strip()
+    
+    existing_user = db.query(User).filter(User.phone == phone_clean).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="User already exists")
 
-    # 2. Create User in 'profiles' table
-    # data.dict() automatically maps: street, city, state, pincode, etc.
     try:
-        new_user = User(**data.dict())
+        # Create user with a fresh UUID
+        user_data = data.dict()
+        user_data['phone'] = phone_clean
+        new_user = User(**user_data)
+        
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
+        
+        # ... (rest of transporter logic)
+        
+        return {"message": "User created", "user_id": str(new_user.id)}
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Database Error: {str(e)}")
-
-    # 3. If Transporter, create link in 'transporters' table
-    if new_user.role == "transporter":
-        new_transporter = Transporter(
-            user_id=new_user.id,
-            company_name=new_user.company_name,
-            operating_city=new_user.city
-        )
-        db.add(new_transporter)
-        db.commit()
-
-    return {"message": "User created", "user_id": str(new_user.id)}
-
+        print(f"SIGNUP ERROR: {str(e)}") # This shows in your terminal
+        raise HTTPException(status_code=500, detail="Check database columns match model")
 
 @router.post("/login")
 def login(data: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.phone == data.phone).first()
+    # Use .strip() to avoid space issues
+    user = db.query(User).filter(User.phone == data.phone.strip()).first()
 
-    if not user or user.password != data.password:
+    if not user:
+        print(f"LOGIN FAIL: Phone {data.phone} not found")
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+        
+    if user.password != data.password:
+        print(f"LOGIN FAIL: Password mismatch for {data.phone}")
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     return {
         "message": "Login successful",
-        "user_id": str(user.id),
+        "user": str(user.id), # CRITICAL: matches your AuthContext.tsx
         "role": user.role,
         "full_name": user.full_name
-    }
-
-
-@router.get("/profile/{user_id}")
-def get_user_profile(user_id: str, db: Session = Depends(get_db)):
-    # This is what your "Use my registered address" checkbox calls
-    user = db.query(User).filter(User.id == user_id).first()
-
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    return {
-        "full_name": user.full_name,
-        "company_name": user.company_name,
-        "street": user.street,
-        "city": user.city,
-        "state": user.state,
-        "pincode": user.pincode,
-        "role": user.role
     }

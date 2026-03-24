@@ -19,5 +19,4 @@ class User(Base):
     city = Column(String, nullable=True)
     state = Column(String, nullable=True)
     pincode = Column(String, nullable=True)
-
     is_active = Column(Boolean, default=True)
