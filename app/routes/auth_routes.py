@@ -11,6 +11,7 @@ from app.schemas.auth_schema import SignupRequest, LoginRequest
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
+
 @router.post("/signup")
 def signup(data: SignupRequest, db: Session = Depends(get_db)):
     # 1. Check if user exists
@@ -29,12 +30,13 @@ def signup(data: SignupRequest, db: Session = Depends(get_db)):
         new_transporter = Transporter(
             user_id=new_user.id,
             company_name=new_user.company_name,
-            operating_city=new_user.city # Using 'city' from signup for logistics
+            operating_city=new_user.city
         )
         db.add(new_transporter)
         db.commit()
 
     return {"message": "User created", "user_id": str(new_user.id)}
+
 
 @router.post("/login")
 def login(data: LoginRequest, db: Session = Depends(get_db)):
@@ -46,5 +48,25 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
     return {
         "message": "Login successful",
         "user_id": str(user.id),
+        "role": user.role,
+        "full_name": user.full_name  # Good to return this for frontend storage
+    }
+
+
+# 👇 NEW PROFILE ROUTE FOR AUTO-FILL 👇
+@router.get("/profile/{user_id}")
+def get_user_profile(user_id: str, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.id == user_id).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return {
+        "full_name": user.full_name,
+        "company_name": user.company_name,
+        "street": user.street,
+        "city": user.city,
+        "state": user.state,
+        "pincode": user.pincode,
         "role": user.role
     }
