@@ -9,21 +9,26 @@ from app.models.transporter_model import Transporter
 # Import both Schemas
 from app.schemas.auth_schema import SignupRequest, LoginRequest
 
-router = APIRouter(tags=["Auth"])
-
+# 👇 THE FIX: Re-added the prefix so frontend calls like /auth/login work again
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/signup")
 def signup(data: SignupRequest, db: Session = Depends(get_db)):
-    # 1. Check if user exists
+    # 1. Check if user already exists by phone
     existing_user = db.query(User).filter(User.phone == data.phone).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="User already exists")
 
-    # 2. Create User in 'profiles' (maps all address fields automatically)
-    new_user = User(**data.dict())
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+    # 2. Create User in 'profiles' table
+    # data.dict() automatically maps: street, city, state, pincode, etc.
+    try:
+        new_user = User(**data.dict())
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Database Error: {str(e)}")
 
     # 3. If Transporter, create link in 'transporters' table
     if new_user.role == "transporter":
@@ -49,13 +54,13 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
         "message": "Login successful",
         "user_id": str(user.id),
         "role": user.role,
-        "full_name": user.full_name  # Good to return this for frontend storage
+        "full_name": user.full_name
     }
 
 
-# 👇 NEW PROFILE ROUTE FOR AUTO-FILL 👇
 @router.get("/profile/{user_id}")
 def get_user_profile(user_id: str, db: Session = Depends(get_db)):
+    # This is what your "Use my registered address" checkbox calls
     user = db.query(User).filter(User.id == user_id).first()
 
     if not user:
