@@ -13,6 +13,7 @@ from app.models import (
 )
 
 # import routers
+from app.routes.admin_routes import router as admin_router
 from app.routes.auth_routes import router as auth_router
 from app.routes.user_routes import router as user_router
 from app.routes.transporter_routes import router as transporter_router
@@ -38,6 +39,7 @@ Base.metadata.create_all(bind=engine)
 # ✅ THE FIX: Removed extra prefixes that were causing 404s
 # Since these routers (like auth_router) already have prefixes defined
 # inside their own files, we don't add them again here.
+app.include_router(admin_router)
 app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(transporter_router)
