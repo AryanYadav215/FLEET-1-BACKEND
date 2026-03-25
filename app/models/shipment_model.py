@@ -14,11 +14,13 @@ class Shipment(Base):
     pickup_address = Column(String)
     pickup_city = Column(String)
     pickup_contact = Column(String)
+    pickup_pincode = Column(String)
 
     receiver_name = Column(String)
     receiver_address = Column(String)
     receiver_city = Column(String)
     receiver_phone = Column(String)
+    receiver_pincode = Column(String)
 
     goods_description = Column(String)
 

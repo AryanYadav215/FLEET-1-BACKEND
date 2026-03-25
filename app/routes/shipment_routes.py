@@ -8,7 +8,7 @@ from app.schemas.shipment_schema import ShipmentCreate
 
 router = APIRouter(prefix="/shipments", tags=["Shipments"])
 
-@router.post("/")
+@router.post("/create")
 def create_shipment(data: ShipmentCreate, db: Session = Depends(get_db)):
     shipment = Shipment(
         shipment_code=data.shipment_code,
@@ -17,11 +17,13 @@ def create_shipment(data: ShipmentCreate, db: Session = Depends(get_db)):
         pickup_address=data.pickup_address,
         pickup_city=data.pickup_city,
         pickup_contact=data.pickup_contact,
+        pickup_pincode=data.pickup_pincode,
 
         receiver_name=data.receiver_name,
         receiver_address=data.receiver_address,
         receiver_city=data.receiver_city,
         receiver_phone=data.receiver_phone,
+        receiver_pincode=data.receiver_pincode,
 
         goods_description=data.goods_description,
         quantity=data.quantity,
