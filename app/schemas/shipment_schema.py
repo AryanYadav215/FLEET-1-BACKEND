@@ -9,11 +9,13 @@ class ShipmentCreate(BaseModel):
     pickup_address: str
     pickup_city: str
     pickup_contact: str
+    pickup_pincode: str
 
     receiver_name: str
     receiver_address: str
     receiver_city: str
     receiver_phone: str
+    receiver_pincode: str
 
     goods_description: Optional[str]
 
