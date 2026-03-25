@@ -54,8 +54,32 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     return {
-        "message": "Login successful",
-        "user": str(user.id), # CRITICAL: matches your AuthContext.tsx
+        "id": str(user.id),
+        "full_name": user.full_name,
+        "phone": user.phone,
         "role": user.role,
-        "full_name": user.full_name
+        "company_name": user.company_name,
+        "street": user.street,
+        "city": user.city,
+        "state": user.state,
+        "pincode": user.pincode
+    }
+
+
+@router.get("/profile/{user_id}")
+def get_profile(user_id: str, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # 🚨 UPDATED: Ensuring these match your User model columns
+    return {
+        "full_name": user.full_name,
+        "phone": user.phone,
+        "role": user.role,
+        "company_name": user.company_name,
+        "street": user.street,
+        "city": user.city,
+        "state": user.state,
+        "pincode": user.pincode
     }
