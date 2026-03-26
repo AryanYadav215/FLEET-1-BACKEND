@@ -24,10 +24,18 @@ from app.routes.status_routes import router as status_router
 
 app = FastAPI()
 
-# ✅ CORS (important for frontend)
+# ✅ CORS CONFIG (IMPORTANT)
+origins = [
+    "http://localhost:5173",  # for local development
+    "http://127.0.0.1:5173",
+
+    # 🔥 ADD YOUR DEPLOYED FRONTEND URL HERE
+    "https://your-frontend.vercel.app"
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -36,9 +44,7 @@ app.add_middleware(
 # ✅ Create tables
 Base.metadata.create_all(bind=engine)
 
-# ✅ THE FIX: Removed extra prefixes that were causing 404s
-# Since these routers (like auth_router) already have prefixes defined
-# inside their own files, we don't add them again here.
+# ✅ Include routers
 app.include_router(admin_router)
 app.include_router(auth_router)
 app.include_router(user_router)
