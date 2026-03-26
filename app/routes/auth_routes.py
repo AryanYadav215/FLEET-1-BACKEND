@@ -15,6 +15,36 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/signup")
 def signup(data: SignupRequest, db: Session = Depends(get_db)):
+    phone_clean = data.phone.strip()
+    
+    existing_user = db.query(User).filter(User.phone == phone_clean).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="User already exists")
+
+    try:
+        new_user = User(
+            full_name=data.full_name,
+            phone=phone_clean,
+            password=data.password,
+            role=data.role,
+            company_name=data.company_name,
+            street=data.street,
+            city=data.city,
+            state=data.state,
+            pincode=data.pincode
+        )
+        
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        
+        return {"message": "User created", "user_id": str(new_user.id)}
+    
+    except Exception as e:
+        db.rollback()
+        print(f"SIGNUP ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail="Check database columns match model")
+    
     # Normalize phone: remove spaces
     phone_clean = data.phone.strip()
     
