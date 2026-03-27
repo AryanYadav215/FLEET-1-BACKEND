@@ -40,3 +40,16 @@ def create_shipment(data: ShipmentCreate, db: Session = Depends(get_db)):
 @router.get("/")
 def get_all_shipments(db: Session = Depends(get_db)):
     return db.query(Shipment).all()
+
+
+@router.get("/{shipment_id}")
+def get_single_shipment(shipment_id: str, db: Session = Depends(get_db)):
+    """Fetches a single shipment by its ID for the tracking page"""
+
+    shipment = db.query(Shipment).filter(Shipment.id == shipment_id).first()
+
+    if not shipment:
+        print(f"🚨 TRACKING ERROR: Shipment ID {shipment_id} not found in database!")
+        raise HTTPException(status_code=404, detail="Shipment not found")
+
+    return shipment
