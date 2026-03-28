@@ -30,7 +30,7 @@ def assign_transporter(data: AssignmentCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Shipment not found in database")
 
     # 2. Search for Transporter
-    transporter = db.query(Transporter).filter(Transporter.id == data.transporter_id).first()
+    transporter = db.query(Transporter).filter(Transporter.user_id == data.transporter_id).first()
     if not transporter:
         print("❌ ERROR: Transporter ID not found in database!")
         raise HTTPException(status_code=404, detail="Transporter not found in database")
