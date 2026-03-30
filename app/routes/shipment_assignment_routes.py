@@ -47,7 +47,7 @@ def assign_transporter(data: AssignmentCreate, db: Session = Depends(get_db)):
 
         # 4. Update the shipment's current transporter
         shipment.current_transporter_id = transporter.id
-        shipment.status = "ASSIGNED"
+        shipment.status = "assigned"
 
         db.add(assignment)
         db.commit()

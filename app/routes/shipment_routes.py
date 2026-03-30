@@ -28,7 +28,7 @@ def create_shipment(data: ShipmentCreate, db: Session = Depends(get_db)):
         goods_description=data.goods_description,
         quantity=data.quantity,
         weight=data.weight,
-        status="CREATED"
+        status="pending"
     )
 
     db.add(shipment)
